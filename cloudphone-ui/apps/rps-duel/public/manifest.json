@@ -1,0 +1,18 @@
+{
+  "name": "RPS Duel",
+  "short_name": "RPS Duel",
+  "description": "Rock Paper Scissors for CloudPhone feature phones",
+  "start_url": "/rps-duel/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#0a0a12",
+  "theme_color": "#0a0a12",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
