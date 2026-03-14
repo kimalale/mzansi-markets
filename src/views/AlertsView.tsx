@@ -47,11 +47,11 @@ export function AlertsView({ onBack }: AlertsProps) {
 
       <div className="h-[40px] flex-shrink-0 flex items-center justify-between px-2"
         style={{background:'#08080f', borderBottom:'1px solid #0f0f1f'}}>
-        <span className="font-hud text-[10px] font-bold tracking-widest" style={{color:'#fbbf24'}}>
+        <span className="font-hud text-[12px] font-bold tracking-widest" style={{color:'#fbbf24'}}>
           PRICE ALERTS
         </span>
         {hasFired && (
-          <button onClick={clearFired} className="text-[7px] tracking-wide px-2 py-1 rounded-sm"
+          <button onClick={clearFired} className="text-[10px] tracking-wide px-2 py-1 rounded-sm"
             style={{color:'#888', border:'1px solid #333'}}>
             CLEAR FIRED
           </button>
@@ -61,8 +61,8 @@ export function AlertsView({ onBack }: AlertsProps) {
       <div className="flex-1 overflow-hidden flex flex-col px-2 py-1 gap-1">
         {alerts.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-1">
-            <span className="text-[8px]" style={{color:'#333'}}>No alerts set</span>
-            <span className="text-[7px]" style={{color:'#222'}}>Open an asset → ALERT to add one</span>
+            <span className="text-[11px] font-bold" style={{color:'#fff'}}>No alerts set</span>
+            <span className="text-[11px] font-bold" style={{color:'#fffaaa'}}>Open an asset → ALERT to add one</span>
           </div>
         ) : (
           alerts.map((alert, i) => (
@@ -76,17 +76,17 @@ export function AlertsView({ onBack }: AlertsProps) {
             >
               <div>
                 <div className="flex items-center gap-1">
-                  <span className="text-[8px]" style={{color: alert.fired ? '#fbbf24' : '#aaa'}}>
+                  <span className="text-[10px] font-bold" style={{color: alert.fired ? '#fbbf24' : '#aaa'}}>
                     {alert.symbol}
                   </span>
-                  {alert.fired && <span className="text-[7px]" style={{color:'#fbbf24'}}>⚡ FIRED</span>}
+                  {alert.fired && <span className="text-[11px]" style={{color:'#fbbf24'}}>⚡ FIRED</span>}
                 </div>
-                <div className="text-[7px]" style={{color:'#444'}}>
+                <div className="text-[10px] font-bold" style={{color:'#444'}}>
                   {alert.direction.toUpperCase()} {alert.target}
                 </div>
               </div>
               {isFocused(i) && (
-                <span className="text-[7px]" style={{color:'#e05555'}}>● DEL</span>
+                <span className="text-[10px] font-bold" style={{color:'#e05555'}}>● DEL</span>
               )}
             </div>
           ))
@@ -95,9 +95,9 @@ export function AlertsView({ onBack }: AlertsProps) {
 
       <div className="h-[24px] flex-shrink-0 flex items-center justify-between px-2"
         style={{background:'#08080f', borderTop:'1px solid #0f0f1f'}}>
-        <span className="text-[8px]" style={{color:'#fbbf24'}}>DELETE</span>
-        <span className="text-[7px]" style={{color:'#333'}}>↑↓ MOVE</span>
-        <span className="text-[8px]" style={{color:'#444'}} onClick={onBack}>BACK</span>
+        <span className="text-[11px] font-bold" style={{color:'#fbbf24'}}>DELETE</span>
+        <span className="text-[11px] font-bold" style={{color:'#333'}}>↑↓ MOVE</span>
+        <span className="text-[11px] font-bold" style={{color:'#444'}} onClick={onBack}>BACK</span>
       </div>
     </div>
   )

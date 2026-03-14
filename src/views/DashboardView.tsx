@@ -114,16 +114,16 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
       {/* Header */}
       <div className="h-[40px] flex-shrink-0 flex items-center justify-between px-2"
         style={{ background:'#08080f', borderBottom:'1px solid #0f0f1f' }}>
-        <span className="font-hud text-[10px] font-bold tracking-widest" style={{ color:'#4ade80' }}>
+        <span className="font-hud text-[12px] font-bold tracking-widest" style={{ color:'#4ade80' }}>
           MZANSI MARKETS
         </span>
         <div className="flex items-center gap-2">
-          {loading && <span className="text-[7px] animate-pulse" style={{color:'#555'}}>UPDATING</span>}
-          {!loading && fromCache && <span className="text-[7px]" style={{color:'#333'}}>CACHED</span>}
+          {loading && <span className="text-[9px] animate-pulse font-bold" style={{color:'#555'}}>UPDATING</span>}
+          {!loading && fromCache && <span className="text-[10px] font-bold" style={{color:'#333'}}>CACHED</span>}
           {!loading && !fromCache && !error && (
-            <span className="text-[7px]" style={{color:'#1a3a1a'}}>● LIVE</span>
+            <span className="text-[9px] font-bold" style={{color:'#1a3a1a'}}>● LIVE</span>
           )}
-          {error && <span className="text-[7px]" style={{color:'#e05555'}}>ERR</span>}
+          {error && <span className="text-[9px] font-bold" style={{color:'#e05555'}}>ERR</span>}
         </div>
       </div>
 
@@ -133,7 +133,7 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
           <button
             key={cat}
             onClick={() => { setActiveCat(cat); setFocusedIdx(0); sfx.play('nav') }}
-            className="flex-1 h-[18px] text-[7px] tracking-wide transition-all"
+            className="flex-1 h-[18px] text-[9px] font-bold tracking-wide transition-all"
             style={{
               background:  activeCat === cat ? '#0a0a1a' : '#08080f',
               color:       activeCat === cat
@@ -153,15 +153,15 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
       <div className="flex-1 overflow-hidden flex flex-col">
         {error && !Object.keys(quotes).length ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-2">
-            <span className="text-[8px] text-center px-4" style={{color:'#e05555'}}>{error}</span>
+            <span className="text-[12px] text-center px-4" style={{color:'#e05555'}}>{error}</span>
             <button onClick={refresh}
-              className="text-[8px] px-3 py-1 rounded-sm border"
+              className="text-[12px] px-3 py-1 rounded-sm border"
               style={{color:'#4ade80', borderColor:'#4ade80'}}>RETRY</button>
           </div>
         ) : activeCat === 'watchlist' && visibleAssets.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4">
-            <span className="text-[8px] text-center" style={{color:'#333'}}>No pinned assets yet</span>
-            <span className="text-[7px] text-center" style={{color:'#222'}}>Open any asset and press ● to pin</span>
+            <span className="text-[12px]  font-bold text-center" style={{color:'#fff'}}>No pinned assets yet</span>
+            <span className="text-[10px]  font-bold text-center" style={{color:'#fffaaa'}}>Open any asset and press ● to pin</span>
           </div>
         ) : (
           <div className="flex-1 overflow-hidden">
@@ -178,7 +178,7 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
                   onClick={() => { sfx.play('select'); onDetail(asset) }}
                   className="flex items-center px-2 cursor-pointer transition-all"
                   style={{
-                    height: '36px',
+                    height: '50px',
                     background: fired
                       ? 'rgba(251,191,36,0.15)'
                       : focused
@@ -192,17 +192,17 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
                   {/* Symbol */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1">
-                      <span className="text-[9px] tracking-wide"
+                      <span className="text-[14px] tracking-wide"
                         style={{ color: focused
                           ? (activeCat === 'watchlist' ? '#fbbf24' : CAT_COLORS[asset.category])
                           : '#aaa' }}>
                         {asset.short}
                       </span>
-                      {pinned && <span style={{color:'#fbbf24', fontSize:7}}>★</span>}
-                      {fired  && <span style={{color:'#fbbf24', fontSize:7}}>⚡</span>}
+                      {pinned && <span style={{color:'#fbbf24', fontSize:10}}>★</span>}
+                      {fired  && <span style={{color:'#fbbf24', fontSize:10}}>⚡</span>}
                     </div>
                     {q && (
-                      <div className="text-[6px]" style={{color:'#333'}}>
+                      <div className="text-[10px]" style={{color:'#333'}}>
                         {ageLabel(q.timestamp)}
                       </div>
                     )}
@@ -210,11 +210,11 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
 
                   {/* Price */}
                   <div className="text-right">
-                    <div className="text-[9px] font-hud" style={{color: q ? '#ccc' : '#333'}}>
+                    <div className="text-[13px] font-hud" style={{color: q ? '#ccc' : '#333'}}>
                       {q ? fmtPrice(q.price, asset.decimals) : '---'}
                     </div>
                     {q && (
-                      <div className="text-[7px]"
+                      <div className="text-[11px]"
                         style={{ color: up === null ? '#333' : up ? '#4ade80' : '#e05555' }}>
                         {up !== null ? (up ? '▲ ' : '▼ ') : ''}{fmtPct(q.pct)}
                       </div>
@@ -230,9 +230,9 @@ export function DashboardView({ onDetail, onAlerts, onSetup }: Props) {
       {/* Softkeys */}
       <div className="h-[24px] flex-shrink-0 flex items-center justify-between px-2"
         style={{ background:'#08080f', borderTop:'1px solid #0f0f1f' }}>
-        <span className="text-[8px]" style={{color:'#4ade80'}}>DETAIL</span>
-        <span className="text-[7px]" style={{color:'#333'}}>◀▶ TAB  ↑↓ MOVE</span>
-        <span className="text-[8px]" style={{color:'#444'}} onClick={onAlerts}>ALERTS</span>
+        <span className="text-[11px] font-bold" style={{color:'#4ade80'}}>DETAIL</span>
+        <span className="text-[11px] font-bold" style={{color:'#333'}}>◀▶ TAB  ↑↓ MOVE</span>
+        <span className="text-[11px] font-bold" style={{color:'#444'}} onClick={onAlerts}>ALERTS</span>
       </div>
     </div>
   )

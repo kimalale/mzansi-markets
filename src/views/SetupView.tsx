@@ -25,41 +25,41 @@ export function SetupView({ existing, onSave }: SetupProps) {
     <div className="w-[240px] h-[320px] bg-black flex flex-col font-mono scanlines" onKeyDown={handleKey}>
       <div className="h-[40px] flex-shrink-0 flex items-center px-2"
         style={{background:'#08080f', borderBottom:'1px solid #0f0f1f'}}>
-        <span className="font-hud text-[10px] font-bold tracking-widest" style={{color:'#4ade80'}}>
+        <span className="font-hud text-[13px] font-bold tracking-widest" style={{color:'#4ade80'}}>
           MZANSI MARKETS
         </span>
-        <span className="ml-auto text-[8px]" style={{color:'#333'}}>SETUP</span>
+        <span className="ml-auto text-[10px] font-bold" style={{color:'#333'}}>SETUP</span>
       </div>
 
       <div className="flex-1 flex flex-col px-3 pt-4 gap-3">
 
-        <div className="text-[7px] leading-relaxed" style={{color:'#333'}}>
+        <div className="text-[11px] font-bold leading-relaxed" style={{color:'#fffaaa'}}>
           GET A FREE API KEY AT{'\n'}
           <span style={{color:'#4ade80'}}>twelvedata.com</span>
           {'\n'}THEN DEPLOY THE WORKER.
         </div>
 
         <div>
-          <div className="text-[7px] mb-1" style={{color:'#4ade80'}}>▶ WORKER PROXY URL</div>
+          <div className="text-[10px] font-bold mb-1" style={{color:'#4ade80'}}>▶ WORKER PROXY URL</div>
           <input
             autoFocus
             type="text"
             value={proxy}
             onChange={e => setProxy(e.target.value)}
             placeholder="https://mzansi-proxy.*.workers.dev"
-            className="w-full h-[28px] rounded-sm px-2 text-[8px] outline-none font-mono"
+            className="w-full h-[28px] rounded-sm px-2 text-[10px] font-bold outline-none font-mono"
             style={{background:'#08080f', border:'1px solid #4ade80', color:'#ccc'}}
           />
-          <div className="text-[6px] mt-1 leading-relaxed" style={{color:'#222'}}>
+          <div className="text-[11px] font-bold mt-1 leading-relaxed" style={{color:'#fffaac'}}>
             Deploy worker/proxy.ts to Cloudflare Workers.{'\n'}
             See README for full instructions.
           </div>
         </div>
 
-        {error && <div className="text-[8px]" style={{color:'#e05555'}}>{error}</div>}
+        {error && <div className="text-[10px] font-bold" style={{color:'#e05555'}}>{error}</div>}
 
         <button onClick={save}
-          className="w-full h-[28px] rounded-sm text-[9px] tracking-widest font-mono mt-auto"
+          className="w-full h-[28px] rounded-sm text-[11px] font-extrabold tracking-widest font-mono mt-auto"
           style={{background:'#050f05', border:'1px solid #4ade80', color:'#4ade80'}}>
           SAVE & START
         </button>
@@ -67,9 +67,9 @@ export function SetupView({ existing, onSave }: SetupProps) {
 
       <div className="h-[24px] flex-shrink-0 flex items-center justify-between px-2"
         style={{background:'#08080f', borderTop:'1px solid #0f0f1f'}}>
-        <span className="text-[8px]" style={{color:'#4ade80'}}>SAVE</span>
-        <span className="text-[7px]" style={{color:'#333'}}></span>
-        <span className="text-[8px]" style={{color:'#333'}}></span>
+        <span className="text-[11px] font-bold" style={{color:'#4ade80'}}>SAVE</span>
+        <span className="text-[11px] font-bold" style={{color:'#333'}}></span>
+        <span className="text-[11px] font-bold" style={{color:'#333'}}></span>
       </div>
     </div>
   )

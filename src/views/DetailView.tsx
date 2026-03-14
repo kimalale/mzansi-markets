@@ -69,14 +69,14 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
       <div className="h-[40px] flex-shrink-0 flex items-center justify-between px-2"
         style={{ background:'#08080f', borderBottom:'1px solid #0f0f1f' }}>
         <div>
-          <div className="font-hud text-[10px] font-bold" style={{color:'#4ade80'}}>{asset.short}</div>
-          <div className="text-[6px] tracking-wide" style={{color:'#333'}}>{asset.label}</div>
+          <div className="font-hud text-[12px] font-bold" style={{color:'#4ade80'}}>{asset.short}</div>
+          <div className="text-[10px] font-bold tracking-wide" style={{color:'#333'}}>{asset.label}</div>
         </div>
         <div className="text-right">
           <div className="font-hud text-[13px] font-bold" style={{color}}>
             {quote ? fmtPrice(quote.price, asset.decimals) : '---'}
           </div>
-          <div className="text-[8px]" style={{color}}>
+          <div className="text-[13px]" style={{color}}>
             {quote ? (up ? '▲ ' : '▼ ') + fmtPct(quote.pct) : ''}
           </div>
         </div>
@@ -86,23 +86,23 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
       <div className="flex-shrink-0 relative" style={{height:90, background:'#050505'}}>
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[7px] animate-pulse" style={{color:'#333'}}>LOADING CHART...</span>
+            <span className="text-[13px] animate-pulse" style={{color:'#333'}}>LOADING CHART...</span>
           </div>
         ) : series.length === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-[7px]" style={{color:'#333'}}>NO CHART DATA</span>
+            <span className="text-[13px]" style={{color:'#333'}}>NO CHART DATA</span>
           </div>
         ) : (
           <>
             <canvas ref={canvasRef} width={240} height={90} className="w-full h-full" />
             {/* Range labels */}
-            <div className="absolute top-1 right-1 text-[6px]" style={{color:'#333'}}>
+            <div className="absolute top-1 right-1 text-[13px]" style={{color:'#fff'}}>
               {fmtPrice(rangeMax, asset.decimals)}
             </div>
-            <div className="absolute bottom-1 right-1 text-[6px]" style={{color:'#333'}}>
+            <div className="absolute bottom-1 right-1 text-[13px]" style={{color:'#fff'}}>
               {fmtPrice(rangeMin, asset.decimals)}
             </div>
-            <div className="absolute bottom-1 left-1 text-[6px]" style={{color:'#333'}}>30D</div>
+            <div className="absolute bottom-1 left-1 text-[13px]" style={{color:'#fff'}}>30D</div>
           </>
         )}
       </div>
@@ -117,11 +117,11 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
           ['LOW',   fmtPrice(quote.low,   asset.decimals)],
         ].map(([label, val]) => (
           <div key={label} className="flex justify-between items-center px-1">
-            <span className="text-[7px]" style={{color:'#333'}}>{label}</span>
-            <span className="text-[8px] font-hud" style={{color:'#888'}}>{val}</span>
+            <span className="text-[10px]" style={{color:'#fff'}}>{label}</span>
+            <span className="text-[10px] font-hud" style={{color:'#fff'}}>{val}</span>
           </div>
         )) : (
-          <div className="col-span-2 text-center text-[7px]" style={{color:'#333'}}>
+          <div className="col-span-2 text-center text-[10px]" style={{color:'#fff'}}>
             No quote data available
           </div>
         )}
@@ -138,8 +138,8 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
             const up30  = chg >= 0
             return (
               <>
-                <span className="text-[7px]" style={{color:'#333'}}>30D CHANGE</span>
-                <span className="text-[8px] font-hud" style={{color: up30 ? '#4ade80' : '#e05555'}}>
+                <span className="text-[10px]" style={{color:'#fff'}}>30D CHANGE</span>
+                <span className="text-[10px] font-hud" style={{color: up30 ? '#4ade80' : '#e05555'}}>
                   {up30 ? '+' : ''}{chg.toFixed(2)}%
                 </span>
               </>
@@ -154,7 +154,7 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
           <div
             key={act}
             onClick={() => handleAction(act)}
-            className="px-3 py-2 rounded-sm border text-[8px] tracking-wide cursor-pointer transition-all"
+            className="px-3 py-2 rounded-sm border text-[10px] font-extrabold tracking-wide cursor-pointer transition-all"
             style={{
               borderColor: focusedAct === i ? '#4ade80' : '#1a1a2e',
               color:       focusedAct === i ? '#4ade80' : '#444',
@@ -169,9 +169,9 @@ export function DetailView({ asset, quote, onBack, onAddAlert }: Props) {
       {/* Softkeys */}
       <div className="h-[24px] flex-shrink-0 flex items-center justify-between px-2"
         style={{ background:'#08080f', borderTop:'1px solid #0f0f1f' }}>
-        <span className="text-[8px]" style={{color:'#4ade80'}}>SELECT</span>
-        <span className="text-[7px]" style={{color:'#333'}}>◀▶ ACTION</span>
-        <span className="text-[8px]" style={{color:'#444'}} onClick={onBack}>BACK</span>
+        <span className="text-[11px] font-bold" style={{color:'#4ade80'}}>SELECT</span>
+        <span className="text-[11px] font-bold" style={{color:'#333'}}>◀▶ ACTION</span>
+        <span className="text-[11px] font-bold" style={{color:'#444'}} onClick={onBack}>BACK</span>
       </div>
     </div>
   )
