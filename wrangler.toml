@@ -1,0 +1,6 @@
+name               = "mzansi-proxy"
+main               = "worker/proxy.ts"
+compatibility_date = "2024-01-01"
+
+# TD_API_KEY is set as a secret — never commit it here
+# Set it with: wrangler secret put TD_API_KEY
