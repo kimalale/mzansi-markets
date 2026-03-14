@@ -92,6 +92,10 @@ async function tdFetch<T>(path: string): Promise<T> {
 // Fetches ALL asset prices in a single API call using /price
 // Returns a QuoteMap indexed by symbol
 
+interface TDBatchPrice {
+  [symbol: string]: { price: string } | { code: number; message: string }
+}
+
 interface TDQuote {
   symbol:         string
   close:          string
@@ -104,62 +108,40 @@ interface TDQuote {
   datetime:       string
 }
 
-// Twelve Data free tier: max 8 symbols per /quote request.
-// Chunk ASSETS into batches of 8, fire in parallel, merge results.
-// 16 assets = 2 credits per refresh. At 5-min cache = 576 credits/day max.
-const TD_BATCH_SIZE = 8
-
-function chunkArray<T>(arr: T[], size: number): T[][] {
-  const out: T[][] = []
-  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
-  return out
-}
-
-function parseQuoteItem(item: TDQuote): Quote {
-  const sym = item.symbol.replace(/:.*$/, '')
-  return {
-    symbol:    sym,
-    price:     parseFloat(item.close),
-    change:    parseFloat(item.change),
-    pct:       parseFloat(item.percent_change),
-    open:      parseFloat(item.open),
-    high:      parseFloat(item.high),
-    low:       parseFloat(item.low),
-    close:     parseFloat(item.previous_close),
-    timestamp: Date.now(),
-  }
-}
-
 export async function fetchAllQuotes(): Promise<{ quotes: QuoteMap; fromCache: boolean }> {
   const CACHE_KEY = 'quotes_all'
-  const TTL       = 5 * 60 * 1000
+  const TTL       = 5 * 60 * 1000   // 5 minutes
 
+  // Return fresh cache if available
   const cached = cGet<QuoteMap>(CACHE_KEY, TTL)
   if (cached) return { quotes: cached, fromCache: true }
 
   try {
-    // Map to TD symbols (JSE needs exchange suffix)
-    const tdSymbols = ASSETS.map(a =>
+    // Build comma-separated symbol list
+    // JSE stocks need exchange suffix for Twelve Data
+    const symbols = ASSETS.map(a =>
       a.exchange === 'JSE' ? `${a.symbol}:JSE` : a.symbol
-    )
+    ).join(',')
 
-    // Chunk into batches of 8 and fetch in parallel
-    const batches = chunkArray(tdSymbols, TD_BATCH_SIZE)
-    const results = await Promise.all(
-      batches.map(batch =>
-        tdFetch<TDQuote[] | TDQuote>(
-          `/quote?symbol=${encodeURIComponent(batch.join(','))}`
-        )
-      )
-    )
+    // /quote returns open/high/low/close/change — more useful than /price
+    const raw = await tdFetch<TDQuote[] | TDQuote>(`/quote?symbol=${encodeURIComponent(symbols)}`)
 
-    // Merge all batches into one QuoteMap
+    const items: TDQuote[] = Array.isArray(raw) ? raw : [raw]
     const quotes: QuoteMap = {}
-    for (const raw of results) {
-      const items: TDQuote[] = Array.isArray(raw) ? raw : [raw]
-      for (const item of items) {
-        const q = parseQuoteItem(item)
-        quotes[q.symbol] = q
+
+    for (const item of items) {
+      // Strip exchange suffix from symbol key
+      const sym = item.symbol.replace(/:.*$/, '')
+      quotes[sym] = {
+        symbol:    sym,
+        price:     parseFloat(item.close),
+        change:    parseFloat(item.change),
+        pct:       parseFloat(item.percent_change),
+        open:      parseFloat(item.open),
+        high:      parseFloat(item.high),
+        low:       parseFloat(item.low),
+        close:     parseFloat(item.previous_close),
+        timestamp: Date.now(),
       }
     }
 
@@ -167,6 +149,7 @@ export async function fetchAllQuotes(): Promise<{ quotes: QuoteMap; fromCache: b
     return { quotes, fromCache: false }
 
   } catch (err) {
+    // Offline fallback — return stale cache with flag
     const stale = cGetStale<QuoteMap>(CACHE_KEY)
     if (stale) {
       Object.values(stale).forEach(q => { q.stale = true })
