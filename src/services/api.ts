@@ -83,18 +83,16 @@ async function tdFetch<T>(path: string): Promise<T> {
   if (!PROXY_URL) throw new Error('No proxy URL configured')
   const res = await fetch(`${PROXY_URL}${path}`)
   if (!res.ok) throw new Error(`API ${res.status}`)
-  const data = await res.json()
-  if (data.status === 'error') throw new Error(data.message || 'API error')
-  return data as T
+  return res.json() as Promise<T>
 }
 
 // ── Batch quote fetch ─────────────────────────────────────
 // Fetches ALL asset prices in a single API call using /price
 // Returns a QuoteMap indexed by symbol
 
-interface TDBatchPrice {
-  [symbol: string]: { price: string } | { code: number; message: string }
-}
+// Twelve Data returns a keyed object when multiple symbols are requested:
+// { "USD/ZAR": { symbol, close, ... }, "BTC/USD": { ... }, "SBK:JSE": { code: 403, ... } }
+// Error entries have a `code` field — we skip those gracefully.
 
 interface TDQuote {
   symbol:         string
@@ -106,42 +104,73 @@ interface TDQuote {
   change:         string
   percent_change: string
   datetime:       string
+  // present on error entries — used to detect and skip
+  code?:          number
+  status?:        string
+}
+
+// Keyed object response shape
+type TDBatchResponse = Record<string, TDQuote>
+
+// Twelve Data free tier: max 8 symbols per /quote request.
+// Chunk ASSETS into batches of 8, fire in parallel, merge results.
+// 16 assets = 2 credits per refresh. At 5-min cache = 576 credits/day max.
+const TD_BATCH_SIZE = 8
+
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
+function parseQuoteItem(tdKey: string, item: TDQuote): Quote {
+  // Strip exchange suffix — use the API response key as the base symbol
+  // e.g. "SBK:JSE" → "SBK", "USD/ZAR" → "USD/ZAR"
+  const sym = (item.symbol ?? tdKey).replace(/:.*$/, '')
+  return {
+    symbol:    sym,
+    price:     parseFloat(item.close),
+    change:    parseFloat(item.change),
+    pct:       parseFloat(item.percent_change),
+    open:      parseFloat(item.open),
+    high:      parseFloat(item.high),
+    low:       parseFloat(item.low),
+    close:     parseFloat(item.previous_close),
+    timestamp: Date.now(),
+  }
 }
 
 export async function fetchAllQuotes(): Promise<{ quotes: QuoteMap; fromCache: boolean }> {
   const CACHE_KEY = 'quotes_all'
-  const TTL       = 5 * 60 * 1000   // 5 minutes
+  const TTL       = 5 * 60 * 1000
 
-  // Return fresh cache if available
   const cached = cGet<QuoteMap>(CACHE_KEY, TTL)
   if (cached) return { quotes: cached, fromCache: true }
 
   try {
-    // Build comma-separated symbol list
-    // JSE stocks need exchange suffix for Twelve Data
-    const symbols = ASSETS.map(a =>
+    // Map to TD symbols (JSE needs exchange suffix)
+    const tdSymbols = ASSETS.map(a =>
       a.exchange === 'JSE' ? `${a.symbol}:JSE` : a.symbol
-    ).join(',')
+    )
 
-    // /quote returns open/high/low/close/change — more useful than /price
-    const raw = await tdFetch<TDQuote[] | TDQuote>(`/quote?symbol=${encodeURIComponent(symbols)}`)
+    // Chunk into batches of 8 and fetch in parallel
+    const batches = chunkArray(tdSymbols, TD_BATCH_SIZE)
+    const results = await Promise.all(
+      batches.map(batch =>
+        tdFetch<TDBatchResponse>(
+          `/quote?symbol=${encodeURIComponent(batch.join(','))}`
+        )
+      )
+    )
 
-    const items: TDQuote[] = Array.isArray(raw) ? raw : [raw]
+    // Merge all batches — skip any entries that are error objects (have a `code` field)
     const quotes: QuoteMap = {}
-
-    for (const item of items) {
-      // Strip exchange suffix from symbol key
-      const sym = item.symbol.replace(/:.*$/, '')
-      quotes[sym] = {
-        symbol:    sym,
-        price:     parseFloat(item.close),
-        change:    parseFloat(item.change),
-        pct:       parseFloat(item.percent_change),
-        open:      parseFloat(item.open),
-        high:      parseFloat(item.high),
-        low:       parseFloat(item.low),
-        close:     parseFloat(item.previous_close),
-        timestamp: Date.now(),
+    for (const batchResult of results) {
+      for (const [tdKey, item] of Object.entries(batchResult)) {
+        if (item.code !== undefined || item.status === 'error') continue  // plan error — skip
+        if (!item.close) continue                                          // malformed — skip
+        const q = parseQuoteItem(tdKey, item)
+        quotes[q.symbol] = q
       }
     }
 
@@ -149,7 +178,6 @@ export async function fetchAllQuotes(): Promise<{ quotes: QuoteMap; fromCache: b
     return { quotes, fromCache: false }
 
   } catch (err) {
-    // Offline fallback — return stale cache with flag
     const stale = cGetStale<QuoteMap>(CACHE_KEY)
     if (stale) {
       Object.values(stale).forEach(q => { q.stale = true })
